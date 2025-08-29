@@ -23,6 +23,17 @@ A high-performance, multi-strategy trading bot for MetaTrader 5 with full macOS 
 - **RSI Divergence**: Advanced divergence detection
 - **MACD Signals**: Multi-timeframe trend analysis
 
+## 📖 **Complete Documentation**
+
+### **🤖 [How the Bot Works - Complete Explanation](COMPLETE_BOT_EXPLANATION.md)**
+**NEW!** Comprehensive guide explaining exactly how the bot makes trading decisions, manages risk, and what each strategy does. Perfect for understanding the system before using it.
+
+### **🍎 [macOS Installation Guide](mac_version/MAC_INSTALLATION.md)**
+Complete setup instructions for macOS users, including Wine integration and simulation mode.
+
+### **⚡ [High-Frequency Trading Guide](HFT_SOLUTION_GUIDE.md)**
+Advanced guide for high-frequency trading setup and optimization.
+
 ## Quick Start
 
 ### Windows Installation
