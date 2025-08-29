@@ -19,7 +19,7 @@ TRADING_SETTINGS = {
     'symbol': os.getenv('TRADING_SYMBOL', 'XAUUSD'),  # Gold trading symbol
     'timeframe': os.getenv('TRADING_TIMEFRAME', 'M5'),  # Timeframe for analysis (M1, M5, M15, etc.)
     'lot_size': float(os.getenv('DEFAULT_LOT_SIZE', '0.01')),  # Default lot size
-    'max_positions': 5,  # Maximum concurrent positions
+    'max_positions': 15,  # Maximum concurrent positions (increased for multi-strategy)
     'slippage': 3,  # Maximum slippage in points
 }
 
@@ -28,6 +28,7 @@ RISK_SETTINGS = {
     'risk_per_trade': 0.01,  # Risk 1% of account balance per trade
     'max_daily_loss': 0.05,  # Maximum 5% daily loss
     'max_drawdown': 0.10,  # Maximum 10% drawdown
+    'max_positions': 15,  # Global maximum positions (increased for multi-strategy)
     'stop_loss_pips': 5,  # Default stop loss in pips (adjusted for Gold)
     'take_profit_pips': 10,  # Default take profit in pips (adjusted for Gold)
     'trailing_stop': True,  # Enable trailing stop
@@ -37,13 +38,14 @@ RISK_SETTINGS = {
 # Strategy Settings
 STRATEGY_SETTINGS = {
     'active_strategy': 'ema_crossover',  # Default strategy
-    'update_interval': 1,  # Update interval in seconds
-    'lookback_periods': 200,  # Number of historical candles to fetch
+    'update_interval': 0.2,  # 200ms for much faster execution
+    'lookback_periods': 100,  # Reduced for faster processing
     
     # Strategy-specific parameters
     'ema_crossover': {
         'ema_period': 5,
-        'confirmation_candles': 1,
+        'confirmation_candles': 0,  # No confirmation for faster signals
+        'signal_cooldown': 5,  # 5 seconds between signals to prevent spam
     },
     
     'rsi_divergence': {

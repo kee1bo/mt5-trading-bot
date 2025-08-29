@@ -2,16 +2,17 @@ import pandas as pd
 import numpy as np
 from typing import Optional, Dict, Any
 from .base_strategy import BaseStrategy
+import time
 
 class EMACrossoverStrategy(BaseStrategy):
     """
-    5 EMA Crossover Strategy for Scalping.
+    5 EMA Crossover Strategy for Scalping with signal filtering.
     
     This strategy uses a 5-period Exponential Moving Average to generate signals.
     - BUY Signal: Price closes above the 5 EMA
     - SELL Signal: Price closes below the 5 EMA
     
-    Best for: Trending markets on very low timeframes (M1, M5)
+    Enhanced with signal filtering to prevent over-trading.
     """
     
     def __init__(self, parameters: Dict[str, Any] = None):
@@ -22,19 +23,27 @@ class EMACrossoverStrategy(BaseStrategy):
             'stop_loss_atr_multiplier': 1.5,
             'take_profit_atr_multiplier': 2.5,
             'min_atr_filter': 0.0001,  # Minimum ATR to avoid low volatility periods
+            'signal_cooldown': 30,  # 30 seconds between signals to prevent spam
         }
         
         if parameters:
             default_params.update(parameters)
             
         super().__init__("EMA_Crossover", default_params)
+        self.last_signal_time = 0
+        self.last_signal_type = None
     
     def get_signal(self, data: pd.DataFrame) -> Optional[str]:
-        """Generate trading signal based on 5 EMA crossover."""
+        """Generate trading signal based on 5 EMA crossover with filtering."""
         if len(data) < self.get_minimum_bars():
             return None
         
         try:
+            # Check signal cooldown to prevent spam
+            current_time = time.time()
+            if current_time - self.last_signal_time < self.parameters['signal_cooldown']:
+                return None
+            
             # Calculate 5 EMA
             ema_period = self.parameters['ema_period']
             data['ema'] = self._calculate_ema(data['close'], ema_period)
@@ -59,6 +68,13 @@ class EMACrossoverStrategy(BaseStrategy):
             if (previous_candle['close'] <= previous_candle['ema'] and 
                 last_candle['close'] > last_candle['ema']):
                 
+                # Prevent immediate opposite signals
+                if self.last_signal_type == 'SELL':
+                    # Additional confirmation for signal reversal
+                    price_momentum = last_candle['close'] - previous_candle['close']
+                    if price_momentum <= 0:
+                        return None
+                
                 # Additional confirmation if required
                 if confirmation_candles > 1:
                     if not self._check_trend_confirmation(data, 'BUY', confirmation_candles):
@@ -67,11 +83,20 @@ class EMACrossoverStrategy(BaseStrategy):
                 signal = 'BUY'
                 if self.validate_signal(data, signal):
                     self.logger.info(f"EMA Crossover BUY signal generated at {last_candle['close']}")
+                    self.last_signal_time = current_time
+                    self.last_signal_type = signal
                     return signal
             
             # SELL Signal: Price crossed below EMA
             elif (previous_candle['close'] >= previous_candle['ema'] and 
                   last_candle['close'] < last_candle['ema']):
+                
+                # Prevent immediate opposite signals
+                if self.last_signal_type == 'BUY':
+                    # Additional confirmation for signal reversal
+                    price_momentum = last_candle['close'] - previous_candle['close']
+                    if price_momentum >= 0:
+                        return None
                 
                 # Additional confirmation if required
                 if confirmation_candles > 1:
@@ -81,6 +106,8 @@ class EMACrossoverStrategy(BaseStrategy):
                 signal = 'SELL'
                 if self.validate_signal(data, signal):
                     self.logger.info(f"EMA Crossover SELL signal generated at {last_candle['close']}")
+                    self.last_signal_time = current_time
+                    self.last_signal_type = signal
                     return signal
             
             return None

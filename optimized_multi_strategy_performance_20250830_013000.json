@@ -1,0 +1,84 @@
+{
+  "timestamp": "20250830_013000",
+  "runtime_seconds": 403.576713,
+  "stats": {
+    "start_time": "2025-08-30 01:23:16.982560",
+    "total_loops": 2646,
+    "strategy_stats": {
+      "ema_crossover": {
+        "signals": 1,
+        "trades": 0,
+        "position_limit_blocks": 0,
+        "last_signal_time": null,
+        "avg_execution_time": 0.004929543197612803
+      },
+      "aggressive_scalp": {
+        "signals": 29,
+        "trades": 14,
+        "position_limit_blocks": 2018,
+        "last_signal_time": null,
+        "avg_execution_time": 0.14150563138269692
+      },
+      "momentum_breakout": {
+        "signals": 65,
+        "trades": 10,
+        "position_limit_blocks": 0,
+        "last_signal_time": null,
+        "avg_execution_time": 0.0007845496858678874
+      },
+      "mean_reversion": {
+        "signals": 0,
+        "trades": 0,
+        "position_limit_blocks": 2646,
+        "last_signal_time": null,
+        "avg_execution_time": 0
+      },
+      "hft_ema": {
+        "signals": 1,
+        "trades": 0,
+        "position_limit_blocks": 0,
+        "last_signal_time": null,
+        "avg_execution_time": 0.0009534303439326344
+      }
+    },
+    "global_stats": {
+      "signals": 96,
+      "trades": 24,
+      "successful_trades": 24,
+      "failed_trades": 72,
+      "position_limit_blocks": 72
+    }
+  },
+  "strategy_configs": {
+    "ema_crossover": {
+      "enabled": true,
+      "max_positions": 3,
+      "risk_per_trade": 0.4,
+      "strategy_name": "EMA_Crossover"
+    },
+    "aggressive_scalp": {
+      "enabled": true,
+      "max_positions": 4,
+      "risk_per_trade": 0.25,
+      "strategy_name": "Aggressive_Scalp"
+    },
+    "momentum_breakout": {
+      "enabled": true,
+      "max_positions": 3,
+      "risk_per_trade": 0.5,
+      "strategy_name": "Momentum_Breakout"
+    },
+    "mean_reversion": {
+      "enabled": true,
+      "max_positions": 2,
+      "risk_per_trade": 0.4,
+      "strategy_name": "Mean_Reversion"
+    },
+    "hft_ema": {
+      "enabled": true,
+      "max_positions": 3,
+      "risk_per_trade": 0.15,
+      "strategy_name": "HFT_EMA_Scalper"
+    }
+  }
+}

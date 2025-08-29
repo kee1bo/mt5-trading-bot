@@ -12,9 +12,13 @@ class RiskManager:
         self.daily_loss = 0.0
         self.max_drawdown_reached = False
         
-    def check_trading_allowed(self) -> bool:
+    def check_trading_allowed(self, strategy_name: str = None, max_strategy_positions: int = None) -> bool:
         """
         Check if trading is allowed based on risk parameters.
+        
+        Args:
+            strategy_name (str, optional): Name of the strategy for per-strategy limits
+            max_strategy_positions (int, optional): Max positions for this specific strategy
         
         Returns:
             bool: True if trading is allowed, False otherwise
@@ -25,11 +29,24 @@ class RiskManager:
             if not account_info:
                 return False
             
-            # Check maximum positions
+            # Get current positions
             positions = self.mt5_connector.get_positions()
-            if positions and len(positions) >= RISK_SETTINGS.get('max_positions', 5):
-                self.logger.warning("Maximum positions reached")
+            
+            # Check global maximum positions (increased for multi-strategy)
+            global_max_positions = RISK_SETTINGS.get('max_positions', 15)  # Increased from 5 to 15
+            if positions and len(positions) >= global_max_positions:
+                self.logger.warning("Global maximum positions reached")
                 return False
+            
+            # Check strategy-specific position limits if provided
+            if strategy_name and max_strategy_positions is not None:
+                strategy_positions = [
+                    pos for pos in (positions or [])
+                    if pos.get('comment', '').startswith(strategy_name)
+                ]
+                if len(strategy_positions) >= max_strategy_positions:
+                    self.logger.debug(f"Strategy {strategy_name} position limit reached: {len(strategy_positions)}/{max_strategy_positions}")
+                    return False
             
             # Check daily loss limit
             if self._check_daily_loss_limit(account_info):

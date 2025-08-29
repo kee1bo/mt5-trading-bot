@@ -145,8 +145,14 @@ class BaseStrategy(ABC):
         if not self.last_signal_time:
             return False
         
-        time_diff = datetime.now() - self.last_signal_time
-        return time_diff.total_seconds() < (min_interval_minutes * 60)
+        # Handle both datetime and timestamp formats
+        if isinstance(self.last_signal_time, datetime):
+            time_diff = datetime.now() - self.last_signal_time
+            return time_diff.total_seconds() < (min_interval_minutes * 60)
+        else:
+            # Assume it's a timestamp
+            current_time = datetime.now().timestamp()
+            return (current_time - self.last_signal_time) < (min_interval_minutes * 60)
     
     def _calculate_atr(self, data: pd.DataFrame, period: int = 14) -> pd.Series:
         """
